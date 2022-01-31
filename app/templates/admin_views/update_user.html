@@ -1,0 +1,46 @@
+{% extends "admin-panel/base.html" %}
+{% block stylesheets %}
+{% endblock stylesheets %}
+{% block content %}
+{% if has_permission(session.get("user"), "user_update") %}
+    <div>
+        <h1> Modificar Usuario </h1>
+    </div>
+
+    <div class="col" style="text-align: left">
+        <form action="/users/update" method="POST" onsubmit="submitHandler(event)" enctype="multipart/form-data">
+            <div class="row ">
+                <input value="{{ user.id }}" class="d-none" type="text" name="user_id">
+                <div class="col-3">
+                    <label> Nombre </label><br>
+                    <input value="{{ user.first_name }}" class="form-control" type="text" name="first_name" disabled>
+                </div>
+                <div class="col-3">
+                    <label> Apellido </label><br>
+                    <input value="{{ user.last_name }}" class="form-control" type="text" name="last_name" disabled>
+                </div>
+                <div class="col-3">
+                    <label> Username </label><br>
+                    <input value="{{ user.username }}" class="form-control" type="text" name="username" disabled>
+                </div>
+            </div><br>
+            <div class="row">
+                <div class="col-3">
+                    <label> Email </label><br>
+                    <input value="{{ user.email }}" class="form-control" type="text" name="email" disabled>
+                </div>
+                <div class="col-3">
+                    <label> Contraseña </label><br>
+                    <input value="{{ user.password }}" class="form-control" type="password" name="password"
+                        placeholder="Contraseña">
+                </div>
+               
+            </div>
+
+            <div><br>
+                <button class="btn my-2 my-sm-0" style="background-color: {{session.get('hexa')}};" type="submit">Cargar</button>
+            </div><br><br><br>
+        </form>
+    </div>
+    {% endif %} <!-- has permission-->
+    {% endblock content %}

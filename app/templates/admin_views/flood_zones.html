@@ -1,0 +1,206 @@
+{% extends "admin-panel/base.html" %}
+{% block title %}Zonas de inundación{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+{% block stylesheets %}
+<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"/>
+    <!-- Añadiendo CSS --> 
+    <style> /*Añadiendo el estilo de nuestro mapa*/ #map {width: 100%; height: 380px;} </style> 
+    <!-- Fin añadiendo CSS --> 
+{% endblock stylesheets %}
+{% if has_permission(session.get("user"), "flood_zone_index") %}
+
+<div class="row mb-4">
+  <h2 class="text-center">
+    Zonas de inundación
+  </h2>
+</div>
+
+<div class="row">
+  <div class="col-2">
+  <form action="/floodzones/add" method="POST" class="form-inline" enctype="multipart/form-data">
+    <label for="formFile" class="form-label">Cargar CSV</label>
+  <input class="form-control" type="file" id="csv" name="csv">
+  <button class="btn" style="background-color: {{session.get('hexa')}};" type="submit">
+    Cargar </button>
+  <input type="hidden" name="page" value="1">
+  </form>
+</div>
+  <div class="col-2">
+    <!-- nueva busqueda -->
+    <form action="/floodzones" method="GET" class="form-inline">
+      <input class="form-control" name="search" {% if search %} value="{{ search }}" {% endif %} type="search"
+        placeholder="Buscar" aria-label="search">
+
+  </div>
+  <div class="col-2 ml-2">
+    <select class="form-control" name="status">
+      <option value="nope" {% if status=='nope' -%} selected="selected" {% endif %}>
+        ...
+    </option>
+      <option value="1" {% if status=='1' -%} selected="selected" {% endif %}>Puntos de Encuentro
+        Publicados</option>
+      <option value="2" {% if status=='2' -%} selected="selected" {% endif %}>Puntos de
+        Encuentro No Publicados</option>
+    </select>
+  </div>
+  <div class="col-2">
+    <button class="btn" style="background-color: {{session.get('hexa')}};" type="submit">
+      Buscar </button>
+    <input type="hidden" name="page" value="1">
+  </div>
+  </form>
+
+  <div class="col-2">
+    <form action="/floodzones" method="GET">
+      <input type="hidden" name="page" value="1">
+      <input type="hidden" name="status" value="nope">
+      <input type="hidden" name="search" value="">
+      <button class="btn" style="background-color: {{session.get('hexa')}};" type="submit"> Limpiar Búsqueda </button>
+    </form>
+  </div>
+</div>
+<!-- fin nueva busqueda -->
+
+
+<hr style="width: 80%; margin-top: 20px;">
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% for category,message in messages %}
+                      {% if category=="error" %}
+                          <div class="alert alert-danger" role="alert">
+                              {{ message }}
+                          </div>
+                          {% endif %}
+                          {% if category=="success" %}
+                          <div class="alert alert-success" role="alert">
+                              {{ message }}
+                          </div>
+                          {% endif %}
+              
+                      {% endfor %}
+                  {% endwith %} 
+                </div>
+  <div class="row row-cols-xl-3 p-3 justify-content-center">
+    {% for flood_zone in flood_zones.items %}
+    <div class="col">
+      <div class="card container p-4 item-container text-center "
+        style="box-shadow: 3px 3px 3px 1px {{session.get('hexa')}};">
+        <div class="card-body">
+          <div class="card-header">
+            <h5 class=" font-weight-bolder m-3">Nombre: {{flood_zone.name|e }}</h5>
+          </div>
+          <div class="card-body">
+            <h5>Código: {{flood_zone.id|e }}</h5>
+          </div>
+          {% if flood_zone.state_id == 1 %}
+          <div class="alert alert-success " role="alert">
+            PUBLICADO
+          </div>
+
+          {% elif flood_zone.state_id == 2 %}
+          <div class="alert alert-warning" role="alert">
+            NO PUBLICADO
+          </div>
+          {% endif %}
+          
+          <div class="" id="accordionExample{{flood_zone.id}}">
+            <div class="card">
+              <div id="expand{{flood_zone.id}}" class="">
+                <div class="card-body">
+                 
+                  <p>Cantidad de puntos: {{flood_zone.points_count|e }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row p-2 pt-3 d-flex justify-content-center">
+            <div class="col-center">
+              <div class="btn-group flex-wrap" role="group" aria-label="Basic example">
+                <a class="btn btn-outline-primary" href="{{url_for("floodzone_coordinates_view",
+                  id=flood_zone.id,name=flood_zone.name,colour_id=flood_zone.colour_map_id)}}">Ver Coordenadas</a>
+
+          
+
+              </div>
+              <div class="btn-group flex-wrap" role="group" aria-label="Basic example">
+                <a class="btn btn-outline-primary" href="{{url_for("floodzone_update_view",
+                  id=flood_zone.id)}}">Modificar</a>
+              </div>
+              <div class="btn-group flex-wrap" role="group" aria-label="Basic example">
+                <!-- begin modal -->
+
+                <a class="btn btn-outline-danger" data-bs-toggle="modal"
+                  data-bs-target="#modalEliminar{{flood_zone.id}}">Eliminar</a>
+
+                <!-- Modal -->
+                <div class="modal fade" id="modalEliminar{{flood_zone.id}}" tabindex="-1"
+                  aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Eliminar Zona de inundación: {{flood_zone.name}}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <p style="font-size: 16px;">
+                          ¿Seguro deseas eliminar esta zona de inundación?
+                        </p>
+                        <p style="font-size: 14px;">
+                          Esta acción no puede deshacerse.
+                        </p>
+                      </div>
+                      <div class="modal-footer">
+                        <a class="btn btn-outline-danger" href="{{url_for("floodzone_destroy",
+                          id=flood_zone.id)}}">Eliminar</a>
+                        <button type="button" class="btn btn-outline-secondary"
+                          data-bs-dismiss="modal">Cancelar</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- end modal -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><br>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
+
+      <div class="row" style="height: 46px;">
+        <div class="col-md-6" style="height: 38px;">
+            <nav class="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
+                <ul class="pagination">
+                  {% if flood_zones.has_prev %}
+                    <li class="page-item"><a class="page-link"
+                            href="/floodzones?page={{page_number - 1}}&search={{ search }}&active={{ status }}"
+                            aria-label="Previous"><span aria-hidden="true">
+
+                                «</span></a></li>
+                                {% endif %}
+                                {% if flood_zones.has_next %}
+                    <li class="page-item"><a class="page-link"
+                            href="/floodzones?page={{ page_number + 1}}&search={{ search }}&active={{ status }}"
+                            aria-label="Next"><span aria-hidden="true">
+
+                                »</span></a></li>
+                                {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+{% endif %} <!-- has permission-->
+{% endblock content %}
+

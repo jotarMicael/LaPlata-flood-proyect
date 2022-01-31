@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block title %}Login{% endblock %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-9 col-lg-12 col-xl-10">
+      <div class="card shadow-lg o-hidden border-0 my-5">
+        <div class="card-body p-0">
+          <div class="row">
+            <div class="col-lg-6 d-none d-lg-flex" style="width: 502px;height: 485px;"><img src="/static/muni.svg"
+                style="width: 313px;height: 294px;margin: 102px;padding: 25px;"></div>
+            <div class="col-lg-6">
+              <div class="p-5">
+                <div class="text-center">
+                  <h4 class="text-dark mb-4">Iniciar sesión</h4>
+                </div>
+                <form action="{{ url_for('auth_authenticate') }}" method="POST">
+                                  <div class=" mb-3"><input class="form-control form-control-user" type="email"
+                    placeholder="Email" name="email" required>
+              </div>
+              <div class="mb-3"><input class="form-control form-control-user" type="password" placeholder="Contraseña"
+                  name="password" required></div>
+              <div class="mb-3">
+                <div class="custom-control custom-checkbox small">
+                  <div class="form-check"><input class="form-check-input custom-control-input" type="checkbox"
+                      id="formCheck-1"><label class="form-check-label custom-control-label"
+                      for="formCheck-1">Recuérdame</label></div>
+                </div>
+              </div><button class="btn d-block btn-user w-100 btn-outline-primary" type="submit">Inicie sesión</button>
+              {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                  <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+              <hr><a href="{{ url_for('auth_login_google') }}" class="btn btn-primary d-block btn-google btn-user w-100 mb-2" role="button"
+                style="background: var(--bs-gray-900);"><i class="fab fa-google"></i>&nbsp; Inicie sesión con Google</a>
+              <hr>
+              </form>
+              <div class="text-center"><a class="small" href="#">¿No tiene cuenta?</a>
+                <br><a href="{{ url_for('register_google') }}" class="btn btn-primary d-block btn-google btn-user w-100 mb-2" role="button"
+                style="background: var(--bs-gray-900);"><i class="fab fa-google"></i>&nbsp; Regístrese con Google</a>
+             
+              </div>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<script src="static/js/login.js"></script>
+{% endblock %}

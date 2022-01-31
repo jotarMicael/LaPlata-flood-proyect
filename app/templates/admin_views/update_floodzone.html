@@ -1,0 +1,61 @@
+{% extends "admin-panel/base.html" %}
+{% block stylesheets %}
+<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"/>
+    <!-- Añadiendo CSS --> 
+    <style> /*Añadiendo el estilo de nuestro mapa*/ #map {width: 30%; height: 400px;} </style> 
+    <!-- Fin añadiendo CSS --> 
+{% endblock stylesheets %}
+
+{% block content %}
+
+    <div>
+        <h1> Modificar zona de inundación </h1>
+    </div>
+
+    <div class="col" style="text-align: left">
+        <form action="/floodzones/update" method="POST" onsubmit="submitHandler(event)"
+            enctype="multipart/form-data">
+            <input value="{{floodzone.id}}" class="d-none" type="text" name="floodzone_id">
+            <div class="row mb-5 mt-3">
+                <div class="col-auto">
+                    <div class="form-group">
+
+                        <label for="colour">Seleccione un color </label>
+                        <select value="{{ set_colour.id }}" name="colour" id="colour" class="form-select" aria-label="Default select example">
+                            <option selected="true" value="{{ set_colour.id }}">{{ set_colour.name }}</option>
+                            {% for colour_map in colours_map %}
+                            {% if set_colour.id != colour_map.id %}
+                            <option  value="{{ colour_map.id }}">{{ colour_map.name }}</option>
+                            {% endif %}
+                                {% endfor %}
+                        </select>
+                    </div>
+                </div><br>
+                <div class="col-auto">
+                    <div>
+                        <label> Estado </label><br>
+                        <select class="form-control" name="status">
+                            <option {% if status=='1' -%} selected="selected" {% endif %} value="1">Publicado
+                            </option>
+                            <option {% if status=='2' -%} selected="selected" {% endif %} value="2">
+                                Despublicado</option>
+                        </select>
+                    </div><br>
+                </div>
+            </div>
+            <div class="row mb-5">
+                
+            
+            </div>
+
+            <div>
+                <button class="btn my-2 my-sm-0" style="background-color: {{session.get('hexa')}};" type="submit">Cargar</button>
+            </div><br><br><br>
+
+
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

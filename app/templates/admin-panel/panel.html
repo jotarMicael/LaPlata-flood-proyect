@@ -1,0 +1,188 @@
+{% extends "admin-panel/base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        {% if has_permission(session.get("user"), "meeting_spot_index") %}
+        <!-- Puntos de encuentro -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Puntos de encuentro
+                            </div>
+                            <a href="{{ url_for('meetingspot_index') }}"
+                                class="btn btn-light btn-icon-split">
+                                <span class="icon text-gray-600">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                                <span class="text">Listado</span>
+                            </a><br>
+                            <a href="{{ url_for('meetingspot_new') }}" class="btn btn-light btn-icon-split">
+                                <span class="icon text-gray-600">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                                <span class="text">Agregar Punto de Encuentro</span>
+                            </a><br>                            
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-map-marked-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if has_permission(session.get("user"), "evacuation_index") %}
+        <!-- Zonas de evacuacion -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Recorridos de Evacuación</div>
+                            <a href="{{ url_for('evacuation_index') }}" class="btn btn-light btn-icon-split">
+                                <span class="icon text-gray-600">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                                <span class="text">Listado</span>
+                            </a><br>
+                            <a href="{{ url_for('evacuation_new') }}" class="btn btn-light btn-icon-split">
+                                <span class="icon text-gray-600">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                                <span class="text">Agregar Recorrido de Evacuación</span>
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if has_permission(session.get("user"), "flood_zone_index") %}
+        <!-- Zonas de Inundación -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Zonas de Inundación
+                            </div>
+                            <a href="{{ url_for('floodzone_index') }}"
+                                class="btn btn-light btn-icon-split">
+                                <span class="icon text-gray-600">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                                <span class="text">Listado</span>
+                            </a><br>
+                            
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-map-marked-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        
+        {% if has_permission(session.get("user"), "denunciation_index") %}
+        <!-- Denuncias -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Denuncias
+                            </div>
+                            <a href="/denunciations?page=1&active=nope&search=&to_date=&from_date="
+                                class="btn btn-light btn-icon-split">
+                                <span class="icon text-gray-600">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                                <span class="text">Listado</span>
+                            </a><br>
+                            <a href="{{ url_for('denunciation_new') }}" class="btn btn-light btn-icon-split">
+                                <span class="icon text-gray-600">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                                <span class="text">Agregar Denuncia</span>
+                            </a><br>                            
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-map-marked-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+
+        {% if has_permission(session.get("user"), "user_index") %}
+        <!-- Usuarios -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Usuarios</div>
+                            <a href="{{ url_for('user_index') }}" class="btn btn-light btn-icon-split">
+                                <span class="icon text-gray-600">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                                <span class="text">Listado</span>
+                            </a><br>
+                            <a href="{{ url_for('user_new') }}" class="btn btn-light btn-icon-split">
+                                <span class="icon text-gray-600">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                                <span class="text">Agregar Usuario</span>
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if has_permission(session.get("user"), "configuration_show") %}
+        <!-- Configuracion -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Configuración</div>
+                            <a href="{{ url_for('configuration') }}" class="btn btn-light btn-icon-split">
+                                <span class="icon text-gray-600">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                                <span class="text">Modificación</span>
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-cog fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock content %}

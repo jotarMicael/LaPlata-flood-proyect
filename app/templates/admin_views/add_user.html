@@ -1,0 +1,86 @@
+{% extends "admin-panel/base.html" %}
+{% block stylesheets %}
+{% endblock stylesheets %}
+{% block content %}
+{% if has_permission(session.get("user"), "user_new") %}
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% for category,message in messages %}
+                        {% if category=="error" %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ message }}
+                            </div>
+                            {% endif %}
+                            {% if category=="success" %}
+                            <div class="alert alert-success" role="alert">
+                                {{ message }}
+                            </div>
+                            {% endif %}
+                
+                        {% endfor %}
+                    {% endwith %} 
+                  </div>
+<div>
+    <h1> Agregar Usuario </h1>
+</div>
+<div class="container p-4 item-container">
+    <div class="col" style="text-align: left">
+        <form action="/users/add" method="POST" onsubmit="submitHandler(event)" enctype="multipart/form-data">
+            <div class="row ">
+                <div class="col-3">
+                    <label> Nombre </label><br>
+                    <input class="form-control" type="text" name="first_name" placeholder="Nombre" required>
+                </div><br>
+                <div class="col-3">
+                    <label> Apellido </label><br>
+                    <input class="form-control" type="text" name="last_name" placeholder="Apellido" required>
+                </div><br>
+                <div class="col-3">
+                    <label> Username </label><br>
+                    <input class="form-control" type="text" name="username" placeholder="Username" required>
+                </div><br>
+            </div><br>
+            <div class="row">
+                <div class="col-3">
+                    <label> Email </label><br>
+                    <input class="form-control" type="email" name="email" placeholder="Email" required>
+                </div> 
+                <div class="col-3">
+                    <label> Contraseña </label><br>
+                    <input class="form-control" type="password" name="password" placeholder="Contraseña">
+                </div>
+                <div class="col-2">
+                    <label> Estado </label><br>
+                    <select class="form-control" name="active">
+                        <option value="1">Activado</option> 
+                        <option value="0">Desactivado</option>            
+                    </select>     
+                </div>
+                <div class="col-3">
+                    <p>Seleccionar rol: </p>
+                    {% for role in roles %}
+                    <label>
+                    <input name='role' type="checkbox" value="{{role.id}}" >{{ role.name }} </label><br>
+                    {% endfor %}
+                </div>
+                
+            </div><br>
+            
+            <button class="btn my-2 my-sm-0 btn-block" style="background-color: {{session.get('hexa')}};" type="submit">Cargar</button>
+    </div><br><br><br>
+    </form>
+    {% with messages = get_flashed_messages()
+         %}
+              {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                  <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+</div>
+{% endif %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="../../static/js/required_role.js"></script>
+{% endblock content %}

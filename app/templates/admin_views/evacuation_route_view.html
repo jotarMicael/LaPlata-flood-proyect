@@ -1,0 +1,66 @@
+{% extends "admin-panel/base.html" %}
+
+{% block stylesheets %}
+<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"/>
+    <!-- Añadiendo CSS --> 
+    <style> /*Añadiendo el estilo de nuestro mapa*/ #map {width: 30%; height: 400px;} </style> 
+    <!-- Fin añadiendo CSS --> 
+{% endblock stylesheets %}
+
+{% block content %}
+
+    <div>
+        <h1> Coordenada de la zona de inundacion: {{ name }} </h1>
+        
+        
+
+       
+    </div>
+
+    <div class="col" style="text-align: left">
+        
+            
+            
+            <div class="row mb-5 mt-3">
+                <div id = 'map'></div>
+                
+                
+            </div>
+            
+
+            
+
+
+        
+    </div>
+</div>
+
+{% endblock content %}
+{% block javascripts %}
+
+<script type="text/javascript" charset="utf-8">		
+  
+  const a = JSON.parse(['{{ evacuation_coordinates|tojson }}'])
+
+ const coordinates = [];
+ 
+ a.forEach(function(point){
+    coordinates.push([parseFloat(point.latitude),parseFloat(point.longitude)])
+    
+});
+
+var map = L.map('map',{
+}).setView([coordinates[0][0],coordinates[0][1]], 11);
+
+L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+
+      }).addTo(map);
+
+
+L.polyline(coordinates, {color: '#000000'} ).addTo(map
+);
+
+</script>
+{% endblock javascripts %}

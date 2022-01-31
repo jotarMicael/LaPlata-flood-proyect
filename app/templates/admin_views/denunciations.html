@@ -1,0 +1,203 @@
+{% extends "admin-panel/base.html" %}
+{% block title %}Home{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+
+{% if has_permission(session.get("user"), "denunciation_index") %}
+
+<div class="row mb-4">
+  <h2 class="text-center">
+    Denuncias
+  </h2>
+</div>
+
+<div class="row">
+  <a class="btn my-2 my-sm-0 top-table-buttom" class="btn my-2 my-sm-0 col-1"
+    style="background-color: {{session.get('hexa')}}; width: 235px;height: 40px; margin-right: auto;"
+    href="{{ url_for('denunciation_new') }}">Agregar Denuncia</a>
+  <div class="col-2">
+    <!-- Busqueda de denuncias -->
+    <form action="/denunciations" method="GET" class="form-inline">
+      <input class="form-control" name="search" {% if search %} value="{{ search }}" {% endif %} type="search"
+        placeholder="Buscar" aria-label="search">
+
+  </div>
+  <div class="col-2 ml-2">
+    <select class="form-select" name="active">
+      <option value="nope" {% if active=='nope' -%} selected="selected" {% endif %}>
+        Seleccione un estado
+    </option>
+    {% for denunciation_state in denunciations_states %}
+      <option value="{{denunciation_state.id}}" {% if active=='{{denunciation_state.id}}' -%} selected="selected" {% endif %}>
+        {{denunciation_state.name_ds }}
+      </option>
+    {% endfor %}
+    </select>
+  
+  
+    <label for="from_date">Fecha Desde:</label>
+    <input class="form-control" type="date" id="from_date" name="from_date"  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}">
+    <span class="validity"></span>
+  
+    <label for="to_date">Fecha Hasta:</label>
+    <input class="form-control" type="date" id="to_date" name="to_date"  pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}">
+    <span class="validity"></span>
+  </div>
+  <div class="col-2">
+    <button class="btn" style="background-color: {{session.get('hexa')}};" type="submit">
+      Buscar </button>
+    <input type="hidden" name="page" value="1">
+  </div>
+  </form>
+
+  <div class="col-2">
+    <form action="/denunciations" method="GET">
+      <input type="hidden" name="page" value="1">
+      <input type="hidden" name="active" value="nope">
+      <input type="hidden" name="search" value="">
+      <input type="hidden" name="to_date" value="">
+      <input type="hidden" name="from_date" value="">
+      <button class="btn" style="background-color: {{session.get('hexa')}};" type="submit"> Limpiar Búsqueda </button>
+    </form>
+  </div>
+</div>
+<!-- Fin Busqueda de Denuncias -->
+
+<hr style="width: 80%; margin-top: 20px;">
+<div class="container">
+{% with messages = get_flashed_messages(with_categories=true) %}
+                    {% for category,message in messages %}
+                    {% if category=="error" %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+                        {% if category=="success" %}
+                        <div class="alert alert-success" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+            
+                    {% endfor %}
+                {% endwith %} 
+              </div>
+  <div class="row row-cols-xl-3 p-3 justify-content-center">
+    {% for denunciation in denunciations.items %}
+   
+    <div class="col">
+      <div class="card container p-4 item-container text-center "
+        style="box-shadow: 3px 3px 3px 1px {{session.get('hexa')}};">
+        <div class="card-body">
+          <div class="card-header">
+            <h5 class=" font-weight-bolder m-3">{{denunciation.title|e }}</h5>
+          </div>
+          <div class="card-body">
+            <h5>Descripción: {{denunciation.description|e }}</h5>
+          </div>
+         
+          <div class="{{denunciation.color_class|e}}" role="alert">
+            {{denunciation.name_ds|e}}
+          </div>
+
+          <div class="" id="accordionExample{{denunciation.id}}">
+            <div class="card">
+              <div id="expand{{denunciation.id}}" class="">
+                <div class="card-body">
+                  <p>Telefono: {{denunciation.phone_d|e }}</p>
+                  <p>Email: {{denunciation.email_d|e }}</p>
+                  <p>Intentos de contacto: {{denunciation.attempts|e }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row p-2 pt-3 d-flex justify-content-center">
+            <div class="col-center">
+              {% if denunciation.attempts != 3 %}
+              <div class="btn-group flex-wrap" role="group" aria-label="Basic example">
+                <a class="btn btn-outline-success" href="{{url_for("denunciation_attempt",
+                  id=denunciation.id)}}">Registrar intento de contacto</a>
+              </div><br><br>
+              {% endif %}
+              
+              <div class="btn-group flex-wrap" role="group" aria-label="Basic example">
+                <a class="btn btn-outline-primary" href="{{url_for("denunciation_update_view",
+                  id=denunciation.id)}}">Modificar</a>
+              </div>
+              <div class="btn-group flex-wrap" role="group" aria-label="Basic example">
+                <a class="btn btn-outline-warning" href="{{url_for("denunciation_record_index",
+                  id=denunciation.id)}}">Seguimiento</a>
+              </div>              
+              <div class="btn-group flex-wrap" role="group" aria-label="Basic example">
+                <!-- begin modal -->
+
+                <a class="btn btn-outline-danger" data-bs-toggle="modal"
+                  data-bs-target="#modalEliminar{{denunciation.id}}">Eliminar</a>
+
+                <!-- Modal -->
+                <div class="modal fade" id="modalEliminar{{denunciation.id}}" tabindex="-1"
+                  aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Eliminar denuncia: {{denunciation.title}}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <p style="font-size: 16px;">
+                          ¿Seguro deseas eliminar esta denuncia?
+                        </p>
+                        <p style="font-size: 14px;">
+                          Esta acción no puede deshacerse.
+                        </p>
+                      </div>
+                      <div class="modal-footer">
+                        <a class="btn btn-outline-danger" href="{{url_for("denunciation_destroy",
+                          id=denunciation.id)}}">Eliminar</a>
+                        <button type="button" class="btn btn-outline-secondary"
+                          data-bs-dismiss="modal">Cancelar</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- end modal -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><br>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+      <div class="row" style="height: 46px;">
+        <div class="col-md-6" style="height: 38px;">
+            <nav class="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
+                <ul class="pagination">
+                  {% if denunciations.has_prev %}
+                    <li class="page-item"><a class="page-link"
+                            href="/denunciations?page={{ page_number - 1}}&search={{ search }}&active={{ active }}&from_date={{ from_date }}&to_date={{ to_date }}"
+                            aria-label="Previous"><span aria-hidden="true">
+
+                                «</span></a></li>
+                                {% endif %}
+                                {% if denunciations.has_next %}
+                    <li class="page-item"><a class="page-link"
+                            href="/denunciations?page={{ page_number + 1}}&search={{ search }}&active={{ active }}&from_date={{ from_date }}&to_date={{ to_date }}"
+                            aria-label="Next"><span aria-hidden="true">
+
+                                »</span></a></li>
+                                {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+{% endif %} <!-- has permission-->
+{% endblock content %}
+{% block javascripts %}
+{% endblock javascripts %}

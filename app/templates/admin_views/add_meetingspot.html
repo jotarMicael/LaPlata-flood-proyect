@@ -1,0 +1,97 @@
+{% extends "admin-panel/base.html" %}
+{% block stylesheets %}
+ <!-- CSS Mapa --> 
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+ integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+ crossorigin="" />
+ 
+ <!-- CSS Busqueda Mapa --> 
+ <link rel="stylesheet" type="text/css"
+ href="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.css">
+
+ <!-- CSS Propio --> 
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}" />
+  
+{% endblock stylesheets %}
+{% block content %}
+{% if has_permission(session.get("user"), "meeting_spot_new")  %}
+<div class="container p-4 item-container" >
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% for category,message in messages %}
+                            {% if category=="error" %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ message }}
+                                </div>
+                                {% endif %}
+                                {% if category=="success" %}
+                                <div class="alert alert-success" role="alert">
+                                    {{ message }}
+                                </div>
+                                {% endif %}
+                    
+                            {% endfor %}
+                        {% endwith %} 
+                      </div>
+<div class="col" style="text-align: left">
+    <div>
+        <h1> Agregar punto de encuentro </h1><br>
+    </div>
+<form action="/meetingspots/add" method="POST" onsubmit="submitHandler(event)" enctype="multipart/form-data">
+    <div class="row mb-5 mt-3">
+        <div class="col-auto">
+            <label> Nombre </label><br>
+            <input  class="form-control" type="text" required name="name" placeholder="Nombre">
+        </div><br>
+        <div class="col-auto">
+            <label> Email </label><br>
+            <input  class="form-control"type="email" name="email" placeholder="Email">
+        </div><br>
+        <div class="col-auto">
+            <label> Teléfono </label><br>
+            <input   class="form-control" type="tel" required name="phone" placeholder="Teléfono">
+        </div>        
+    </div>
+    <div class="row mb-5 mt-3">
+        <div class="col-auto">
+            <label> Direccion </label><br>
+            <input   class="form-control" type="text" required name="address" placeholder="Direccion">
+        </div>
+        <div class="col-auto">
+            <label> Estado </label><br>
+            <select class="form-select" name="status">
+                <option value="nope" {% if status=='nope' -%} selected="selected" {% endif %}>Seleccione una opción</option>
+                {% for state in states %}
+                <option value="{{state.id}}" {% if active=='{{state.id}}' -%} selected="selected" {% endif %}>
+                  {{state.name }}
+                </option>
+              {% endfor %}    
+            </select>     
+        </div>
+    </div>
+    <input class="form-control" type="text" id="latitude" name="latitude" >
+    <input class="form-control" type="text" id="longitude" name="longitude" >
+    <div id="mapid" style="height: 500px ; width: 100% " ></div>
+    <br>
+
+    <button class="btn my-2 my-sm-0 btn-block" style="background-color: {{session.get('hexa')}};"  type="submit">Cargar</button>
+    </div><br><br><br>
+    
+    
+</form>
+</div>
+{% endif %}
+{% endblock content %}
+<!-- Specific JS  -->
+{% block javascripts %}
+    <!-- JS Mapa -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+     integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+     crossorigin=""></script>
+    <!-- JS Busqueda Mapa -->
+    <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet/0.0.1-beta.5/esri-leaflet.js"></script>
+    <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.js"></script>
+     
+    <!-- JS propio -->
+    <script src="{{ url_for('static', filename='js/map/map.js') }}"></script>
+{% endblock javascripts %} 

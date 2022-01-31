@@ -1,0 +1,230 @@
+{% extends "admin-panel/base.html" %}
+{% block stylesheets %}
+
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+{% endblock stylesheets %}
+{% block content %}
+
+<div class="row mb-4">
+    <h2 class="text-center">
+      Listado de Usuarios
+    </h2>
+  </div>
+
+{% if has_permission(session.get("user"), "user_index") %}
+<div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <div class="container-fluid">
+                <div class="card shadow">
+                    <div class="card-body" style="height: 621px;">
+                        <div class="row">
+                            <a href="{{ url_for('user_new') }}" class="btn my-2 my-sm-0 col-1" style="background-color: {{ session.get('hexa') }}; width: 145px; height: 40px; margin-right: auto;" type="button">
+                                Agregar usuario</a>
+                            <div class="col-2 ">
+                                <form action="/users" method="GET" class="form-inline">
+                                    <input class="form-control" name="search" {% if search %}
+                                        value="{{ search }}" {% endif %} type="search" placeholder="Buscar"
+                                        aria-label="search">
+                            </div>
+                            <div class="col-2 ml-2">
+                                <select class="form-control" name="active">
+                                    <option value="nope" {% if active=='nope' -%} selected="selected" {% endif %}>
+                                        ...
+                                    </option>
+                                    <option value="1" {% if active=='1' -%} selected="selected" {% endif %}>Usuarios
+                                        Habilitados </option>
+                                    <option value="0" {% if active=='0' -%} selected="selected" {% endif %}>Usuarios
+                                        Inhabilitados </option>
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <button class="btn btn-outline-dark" type="submit">
+                                    Buscar </button>
+                                <input type="hidden" name="page" value="1">
+                            </div>
+                            </form>
+                            <div class="col-2">
+                                <form action="/users" method="GET">
+                                    <input type="hidden" name="page" value="1">
+                                    <input type="hidden" name="active" value="nope">
+                                    <input type="hidden" name="search" value="">
+                                    <button class="btn" style="background-color: {{session.get('hexa')}};" type="submit"> Limpiar Búsqueda </button>
+                                </form>
+                            </div>
+                        </div><br>
+                        <div class="container">
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                                {% for category,message in messages %}
+                                                {% if category=="error" %}
+                                                    <div class="alert alert-danger" role="alert">
+                                                        {{ message }}
+                                                    </div>
+                                                    {% endif %}
+                                                    {% if category=="success" %}
+                                                    <div class="alert alert-success" role="alert">
+                                                        {{ message }}
+                                                    </div>
+                                                    {% endif %}
+                                        
+                                                {% endfor %}
+                                            {% endwith %} 
+                                          </div>
+    
+                    <div class="table-responsive table mt-5" id="dataTable" role="grid"
+                        aria-describedby="dataTable_info">
+                        <table class="table my-0" id="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Roles</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users.items %}
+                                <tr>
+                                    <td>{{user.first_name + ' ' + user.last_name}}</td>
+                                    <td>{{user.username }}</td>
+                                    <td>{{user.email }}</td>
+                                    <td>{{user.roles }}</td>
+                                    {% if user.active %}
+                                    <td>Habilitado</td>
+                                    {% else %}
+                                    <td>Inhabilitado</td>
+                                    {% endif %}
+                                    <td>
+                                        {% if user.active %}
+                                        <a href="" data-bs-toggle="modal" data-bs-target="#modalEliminar{{user.id}}"><i
+                                            class="fa fa-trash-o" style="width: 21.5781px;"></i></a>
+                                    {% else %}
+                                    <a href="" data-bs-toggle="modal" data-bs-target="#modalReactivar{{user.id}}">
+                                        <i class="far fa-plus-square" style="width: 21.5781px;"></i></a>
+                                    {% endif %}
+                                    <a href="{{url_for("user_update_view", id=user.id)}}"><i class="fa fa-pencil"
+                                            style="width: 21.7188px;"></i></a>
+                                    </td>
+                                     <!-- begin modal inactivate-->
+                                     <div class="modals-user">
+                                        <div class="modal " id="modalEliminar{{user.id}}" tabindex="-1"
+                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel">Deshabilitar usuario:
+                                                            {{user.email}}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p style="font-size: 16px;">
+                                                            ¿Seguro deseas eliminar este usuario?
+                                                        </p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <a class="btn btn-outline-danger" href="{{url_for("user_destroy",
+                                                            id=user.id)}}">Deshabilitar</a>
+                                                        <button type="button" class="btn btn-outline-secondary"
+                                                            data-bs-dismiss="modal">Cancelar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                        <!-- end modal -->
+                                        <!-- begin modal activate -->
+                                        <div class="modals-user">
+                                        <div class="modal " id="modalReactivar{{user.id}}" tabindex="-1"
+                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel">Habilitar usuario:
+                                                            {{user.email}}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p style="font-size: 16px;">
+                                                            ¿Seguro deseas habilitar este usuario?
+                                                        </p>
+                                                        
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <a class="btn btn-outline-danger" href="{{url_for("user_reactivate",
+                                                            id=user.id)}}">Habilitar</a>
+                                                        <button type="button" class="btn btn-outline-secondary"
+                                                            data-bs-dismiss="modal">Cancelar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                        <!-- end modal -->
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr></tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="row" style="height: 46px;">
+                        <div class="col-md-6" style="height: 38px;">
+                            <nav class="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
+                                <ul class="pagination">
+                                    {% if users.has_prev %}
+                                    <li class="page-item"><a class="page-link"
+                                            href="/users?page={{ page_number - 1}}&search={{ search }}&active={{ active }}"
+                                            aria-label="Previous"><span aria-hidden="true">
+
+                                                «</span></a></li>
+                                    {% endif %}
+                                    {% if users.has_next %}
+                                    <li class="page-item"><a class="page-link"
+                                            href="/users?page={{ page_number + 1}}&search={{ search }}&active={{ active }}"
+                                            aria-label="Next"><span aria-hidden="true">
+
+                                                »</span></a></li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+{% endif %}
+{% endblock content %}
+{% block javascripts %}
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+
+<script>
+    info = (name, username, email, id) => {
+        $('#name').html(name);
+        $('#username').html(username);
+        $('#email').html(email);
+        $('#id').html(id);
+    }</script>
+<!-- Page specific script -->
+{% endblock javascripts %}

@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block title %}Home{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col">
+    <h1 class="text-center">Inicio</h1>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <p class="text-center">Página de inicio de la aplicación</p>
+  </div>
+</div>
+
+<div class=" row justify-content-center">
+  {% if is_authenticated(session) %}
+  <div class="col-auto">
+    <a href="{{ url_for('panel') }}" class="link btn btn-outline-dark">Panel</a>
+    
+    <a href="{{ url_for('auth_logout') }}" class="link btn btn-outline-dark">Cerrar sesión</a>
+  </div>
+
+  {% else %}
+  <div class="col-auto"> 
+    <a href="{{ url_for('auth_login') }}" class="link btn btn-outline-dark">Iniciar sesión</a>
+  </div>
+    {% endif %}
+
+</div>
+
+{% endblock %} 

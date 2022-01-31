@@ -1,0 +1,143 @@
+{% extends "admin-panel/base.html" %}
+{% block stylesheets %}
+
+    <!-- CSS Mapa --> 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin="" />
+    
+    <!-- CSS Busqueda Mapa --> 
+    <link rel="stylesheet" type="text/css"
+    href="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.css">
+   
+    <!-- CSS Propio --> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}" />
+     
+{% endblock stylesheets %}
+{% block content %}
+{% if has_permission(session.get("user"), "denunciation_new") %}
+<div class="card text-center">
+    <div class="card-header">
+        <h1> Agregar Denuncia </h1>
+    </div>
+
+    <div class="card-body">
+    <div class="col" style="text-align: left">
+        <form action="/denunciations/add" method="POST" onsubmit="submitHandler(event)"
+            enctype="multipart/form-data" id="create-user-form">
+           
+            <div class="row mb-5 mt-3">
+                <div class="col-auto">
+                    <label> Titulo </label><br>
+                    <input  class="form-control" type="text" required name="title" placeholder="Titulo">
+                </div><br>
+                <div class="col-auto">
+                    <label> Categoria </label><br>
+                    <select class="form-select" name="category_id">
+                        <option value="nope" {% if status=='nope' -%} selected="selected" {% endif %}>Seleccione una opción</option>
+                        {% for category in categories %}
+                        <option value="{{category.id}}" {% if active=='{{category.id}}' -%} selected="selected" {% endif %}>
+                          {{category.name_cat }}
+                        </option>
+                      {% endfor %}    
+                    </select>     
+                </div>
+                <div class="col-auto">
+                    <label> Estado de la denuncia </label><br>
+                    <select class="form-select" name="denunciation_state_id">
+                    <option value="nope" {% if status=='nope' -%} selected="selected" {% endif %}>Seleccione una opción</option>
+                        {% for ds in denunciation_states %}
+                        <option value="{{ds.id}}" {% if active=='{{ds.id}}' -%} selected="selected" {% endif %}>
+                          {{ds.name_ds }}
+                        </option>
+                      {% endfor %} 
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <div>
+                        <label> Asignado a </label><br>
+                        <select class="form-select" name="user_id">
+                            <option value="nope" {% if status=='nope' -%} selected="selected" {% endif %}>Seleccione una opción</option>
+                            {% for u in users %}
+                            <option value="{{u.id}}" {% if active=='{{u.id}}' -%} selected="selected" {% endif %}>
+                              {{u.first_name + " " + u.last_name }}
+                            </option>
+                          {% endfor %} 
+                        </select>
+                    </div><br>
+                </div>
+            </div>
+            <div class="row mb-5 mt-3">
+                <div class="col-auto">
+                    <label> Nombre Denunciante</label><br>
+                    <input class="form-control" type="text" required name="first_name_d" placeholder="Nombre">
+                </div>
+                <div class="col-auto">
+                    <label> Apellido Denunciante</label><br>
+                    <input class="form-control" type="text" required name="last_name_d" placeholder="Apellido">
+                </div>
+                <div class="col-auto">
+                    <label> Telefono Denunciante</label><br>
+                    <input class="form-control" type="text" required name="phone_d" placeholder="Telefono">
+                </div>
+                <div class="col-auto">
+                    <label> Email Denunciante</label><br>
+                    <input class="form-control" type="text" required name="email_d" placeholder="Email">
+                </div>
+            </div>
+            <div class="row mb-5 mt-3">
+                                       
+                <div class="col-4">
+                    <label> Descripción </label><br>
+                    <input class="form-control" type="text" required name="description" placeholder="Descripción">
+                </div>
+
+            </div>
+            
+            <input class="form-control" type="text" id="latitude" name="latitude" >
+            <input class="form-control" type="text" id="longitude" name="longitude" >
+                
+            <div id="mapid" style="height: 500px ; width: 100% " > </div>
+
+              <br>
+            <div>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% for category,message in messages %}
+                    {% if category=="error" %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+                        {% if category=="success" %}
+                        <div class="alert alert-success" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+            
+                    {% endfor %}
+                {% endwith %} 
+                <button class="btn my-2 my-sm-0" style="background-color: {{session.get('hexa')}};" type="submit">Cargar Denuncia</button>
+            </div><br><br><br>
+
+
+        </form>
+      </div>
+    </div>
+</div>
+</div>
+
+{% endif %} <!-- has permission-->
+{% endblock content %}
+<!-- Specific JS  -->
+{% block javascripts %}
+    <!-- JS Mapa -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+     integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+     crossorigin=""></script>
+    <!-- JS Busqueda Mapa -->
+    <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet/0.0.1-beta.5/esri-leaflet.js"></script>
+    <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.js"></script>
+     
+    <!-- JS propio -->
+    <script src="{{ url_for('static', filename='js/map/map.js') }}"></script>
+{% endblock javascripts %}   

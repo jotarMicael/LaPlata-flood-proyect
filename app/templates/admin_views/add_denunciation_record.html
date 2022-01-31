@@ -1,0 +1,111 @@
+{% extends "admin-panel/base.html" %}
+{% block stylesheets %}
+<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"/>
+    <!-- Añadiendo CSS --> 
+    <style> /*Añadiendo el estilo de nuestro mapa*/ #map {width: 30%; height: 400px;} </style> 
+    <!-- Fin añadiendo CSS --> 
+{% endblock stylesheets %}
+
+{% block content %}
+{% if has_permission(session.get("user"), "denunciation_new") %}
+<div class="card text-center">
+    <div class="card-header">
+        <h1> Crear Seguimiento </h1>
+    </div>
+
+    <div class="card-body">
+    <div class="col" style="text-align: left">
+        <form action="{{url_for("denunciation_record_add",
+        id=id)}}" method="POST" onsubmit="submitHandler(event)"
+            enctype="multipart/form-data">
+            <h4>Datos de la denuncia</h4>
+            <div class="row mb-5 mt-3">
+                <div class="col-auto">
+                    <label> Titulo </label><br>
+                    <input  class="form-control" type="text" name="title_den" value="{{den[0].title}}" disabled>
+                </div>        
+                <div class="col-auto">
+                    <label> Denunciante </label><br>
+                    <input  class="form-control" type="text" name="user_den" value="{{den[0].first_name_d+' '+den[0].last_name_d}}" disabled>
+                </div>         
+                <div class="col-auto">
+                    <label> Email Denunciante </label><br>
+                    <input  class="form-control" type="text" name="email_den" value="{{den[0].email_d}}" disabled>
+                </div>      
+                <div class="col-auto">
+                    <label> Telefono Denunciante </label><br>
+                    <input  class="form-control" type="text" name="phone_den" value="{{den[0].phone_d}}" disabled>
+                </div>
+            </div>
+            <div class="row mb-5 mt-3">
+                <div class="col-auto">
+                    <label> Categoria </label><br>
+                    <input  class="form-control" type="text" name="category_den" value="{{den[0].name_cat}}" disabled>
+                </div>   
+                <div class="col-auto">
+                    <label> Usuario Asignado</label><br>
+                    <input  class="form-control" type="text" name="user_den" value="{{den[0].first_name+' '+den[0].last_name}}" disabled>
+                </div>  
+                <div class="col-auto">
+                    <label> Estado Asignado Actualmente </label><br>
+                    <input  class="form-control" type="text" name="state_den_last" value="{{den[0].name_ds}}" disabled>
+                </div>       
+            </div>
+
+            <div class="row mb-5 mt-3">
+                <div class="col-4">
+                    <label> Detalle de seguimiento </label><br>
+                    <input  class="form-control" type="text" required name="title" placeholder="Detalle">
+                </div><br>
+                
+                <div class="col-auto">
+                    <div>
+                        <label>Seguimiento asignado a </label><br>
+                        <select  name="user_id" id="user_id" class="form-select" aria-label="Usuarioid">
+                            {% for u in users %}
+                            <option  value="{{u.id}}">{{ u.first_name + " " + u.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div><br>
+                </div>
+                <div class="col-auto">
+                    <label> Estado de la denuncia </label><br>
+                    <select  name="denunciation_state_id" id="denunciation_state_id" class="form-select" aria-label="Estado">
+                        <option selected="true" value="{{ den[0].denunciation_state_id }}">{{ den[0].name_ds }}</option>
+                        {% for ds in denunciation_states %}
+                        {% if ds.id != den[0].denunciation_state_id %}
+                        <option  value="{{ ds.id }}">{{ ds.name_ds }}</option>
+                        {% endif %}
+                            {% endfor %}
+                    </select>
+                </div>
+            </div>
+              <br>
+            <div>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% for category,message in messages %}
+                    {% if category=="error" %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+                        {% if category=="success" %}
+                        <div class="alert alert-success" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+            
+                    {% endfor %}
+                {% endwith %} 
+                <button class="btn my-2 my-sm-0" style="background-color: {{session.get('hexa')}};" type="submit">Crear seguimiento</button>
+            </div><br><br><br>
+
+
+        </form>
+      </div>
+    </div>
+</div>
+
+{% endif %} <!-- has permission-->
+{% endblock content %}

@@ -1,0 +1,133 @@
+{% extends "admin-panel/base.html" %}
+{% block stylesheets %}
+
+<!-- CSS Mapa -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin="" />
+
+<!-- CSS Busqueda Mapa -->
+<link rel="stylesheet" type="text/css"
+    href="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.css">
+
+<!-- CSS Propio -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}" />
+
+{% endblock stylesheets %}
+
+{% block content %}
+{% if has_permission(session.get("user"), "denunciation_update") %}
+
+<div>
+    <h1> Modificar Denuncia </h1>
+</div>
+
+<div class="col" style="text-align: left">
+    <form action="/denunciations/update" method="POST" onsubmit="submitHandler(event)" enctype="multipart/form-data">
+        <input value="{{denunciation.id}}" class="d-none" type="text" name="denunciation_id">
+        <div class="row mb-5 mt-3">
+            <div class="col-auto">
+                <label> Titulo </label><br>
+                <input value="{{ denunciation.title }}" class="form-control" type="text" required name="title"
+                    placeholder="Titulo">
+            </div>
+            <div class="col-auto">
+                <label> Estado actual de la denuncia </label><br>
+                <input type="text" name="denunciation_state_id" class="form-control" aria-label="Estado"
+                    value="{{ allden[0].name_ds }}" disabled>
+            </div>
+            <div class="col-auto">
+                <label> Asignado a </label><br>
+                <input type="text" name="user_id" class="form-control" aria-label="Usuarioid"
+                    value="{{ allden[0].first_name+' '+allden[0].last_name }}" disabled>
+            </div>
+            <div class="col-auto">
+                <label> Categoria </label><br>
+                <select name="category_id" id="category_id" class="form-select" aria-label="Categoria">
+                    <option selected="true" value="{{ allden[0].category_id }}">{{ allden[0].name_cat }}</option>
+                    {% for cat in categories %}
+                    {% if cat.id != allden[0].category_id %}
+                    <option value="{{ cat.id }}">{{ cat.name_cat }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row mb-5 mt-3">
+            <div class="col-auto">
+                <label> Nombre Denunciante</label><br>
+                <input class="form-control" value="{{denunciation.first_name_d}}" type="text" required name="first_name"
+                    placeholder="Nombre">
+            </div>
+            <div class="col-auto">
+                <label> Apellido Denunciante</label><br>
+                <input class="form-control" value="{{denunciation.last_name_d}}" type="text" required name="last_name"
+                    placeholder="Apellido">
+            </div>
+            <div class="col-auto">
+                <label> Telefono Denunciante</label><br>
+                <input class="form-control" value="{{denunciation.phone_d}}" type="text" required name="phone"
+                    placeholder="Telefono">
+            </div>
+            <div class="col-auto">
+                <label> Email Denunciante</label><br>
+                <input class="form-control" value="{{denunciation.email_d}}" type="text" required name="email"
+                    placeholder="Email">
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-6">
+                <label> Descripción </label><br>
+                <input class="form-control" value="{{denunciation.description}}" type="text" required name="description"
+                    placeholder="Descripción">
+            </div>
+        </div>
+
+        <input class="form-control" value="{{denunciation.latitude}}" type="text" id="latitude" name="latitude">
+        <input class="form-control" value="{{denunciation.longitude}}" type="text" id="longitude" name="longitude">
+
+        <div id="mapid" style="height: 500px ; width: 100% "></div>
+
+        <br>
+        <div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category,message in messages %}
+            {% if category=="error" %}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+            {% endif %}
+            {% if category=="success" %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+            {% endif %}
+
+            {% endfor %}
+            {% endwith %}
+            <div><br>
+                <button class="btn my-2 my-sm-0" style="background-color: {{session.get('hexa')}};"
+                    type="submit">Modificar</button>
+            </div><br><br><br>
+
+    </form>
+</div>
+</div>
+
+{% endif %}
+<!-- has permission-->
+{% endblock content %}
+<!-- Specific JS  -->
+{% block javascripts %}
+<!-- JS Mapa -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+<!-- JS Busqueda Mapa -->
+<script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet/0.0.1-beta.5/esri-leaflet.js"></script>
+<script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.js"></script>
+
+<!-- JS propio -->
+<script src="{{ url_for('static', filename='js/map/map.js') }}"></script>
+{% endblock javascripts %}

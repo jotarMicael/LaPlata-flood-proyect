@@ -1,0 +1,128 @@
+{% extends "admin-panel/base.html" %}
+{% block title %}Home{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+
+{% if has_permission(session.get("user"), "denunciation_index") %}
+
+<div class="row mb-4">
+  <h2 class="text-center">
+    Seguimiento de la denuncia 
+  </h2>
+</div>
+
+<hr style="width: 80%; margin-top: 20px;">
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category,message in messages %}
+        {% if category=="error" %}
+          <div class="alert alert-danger" role="alert">
+            {{ message }}
+          </div>
+        {% endif %}
+        {% if category=="success" %}
+          <div class="alert alert-success" role="alert">
+            {{ message }}
+          </div>
+        {% endif %}            
+      {% endfor %}
+    {% endwith %} 
+  </div>
+<div class="container">
+  {% if records.items.name_ds !="Cerrada" %}
+    <a class="btn my-2 my-sm-0 top-table-buttom" class="btn my-2 my-sm-0 col-1"
+      style="background-color: {{session.get('hexa')}}; width: 235px;height: 40px; margin-right: auto;"
+      href="{{url_for("denunciation_record_new",
+                  id=id)}}">Crear seguimiento</a>
+  {% endif %}
+
+  <div class="row row-cols-xl-3 p-3 justify-content-center">
+    {% for current in records.items %} 
+    <div class="col">
+      <div class="card container p-4 item-container text-center "
+        style="box-shadow: 3px 3px 3px 1px {{session.get('hexa')}};">
+        <div class="card-body">
+          <div class="card-header">
+            <h5 class=" font-weight-bolder m-3">Revisión Denuncia</h5>
+          </div>
+          <div class="card-body">
+            <h5>Detalle: {{current.detail|e }}</h5>
+          </div>      
+
+          <div class="" id="accordionExample{{current.id}}">
+            <div class="card">
+              <div id="expand{{current.id}}" class="">
+                <div class="card-body">
+                  <p>Asignado a: {{current.user_assign|e }}</p>
+                  <p>Estado del seguimiento: {{current.actual_state|e }}</p>
+                  <p>Sucedido en: {{current.created_at_r|e }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+          <a class="btn btn-outline-danger" data-bs-toggle="modal"
+                  data-bs-target="#modalEliminar{{current.id}}">Eliminar</a>
+
+          <div class="modal fade" id="modalEliminar{{current.id}}" tabindex="-1"
+              aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Eliminar seguimiento: {{current.detail}}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p style="font-size: 16px;">
+                      ¿Seguro deseas eliminar este registro?
+                    </p>
+                    <p style="font-size: 14px;">
+                      Esta acción no puede deshacerse.
+                    </p>
+                  </div>
+                  <div class="modal-footer">
+                    <a class="btn btn-outline-danger" href="{{url_for("denunciation_record_destroy",
+                      id=current.id, idD=id)}}">Eliminar</a>
+                    <button type="button" class="btn btn-outline-secondary"
+                      data-bs-dismiss="modal">Cancelar</button>
+                  </div>
+
+                </div>
+              </div>
+           </div>
+
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+      <div class="row" style="height: 46px;">
+        <div class="col-md-6" style="height: 38px;">
+            <nav class="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
+                <ul class="pagination">
+                  {% if records.has_prev %}
+                    <li class="page-item"><a class="page-link"
+                            href="/denunciation_records/{{id}}?page={{page_number - 1}}"
+                            aria-label="Previous"><span aria-hidden="true">
+
+                                «</span></a></li>
+                  {% endif %}
+                  {% if records.has_next %}
+                    <li class="page-item"><a class="page-link"
+                            href="/denunciation_records/{{id}}?page={{ page_number + 1}}"
+                            aria-label="Next"><span aria-hidden="true">
+
+                                »</span></a></li>
+                  {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+{% endif %} <!-- has permission-->
+{% endblock content %}

@@ -1,0 +1,172 @@
+<nav class="navbar navbar-light navbar-expand  shadow mb-4 topbar static-top"
+    style="background-color: {{session.get('hexa')}};">
+    <a class="navbar-brand" href="{{ url_for('panel') }}">
+        <object data="/static/muni.svg" width=50px type="image/svg+xml">
+        </object>
+    </a>
+    <!-- esto es para decirle q cree el boton al costado cuando se colapse-->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span
+            class="navbar-toggler-icon"></span> </button>
+    <div class="collapse navbar-collapse " id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto text-center">
+            <li class="nav-item active"> <a class="nav-link" href="{{ url_for('panel') }}">Inicio </a> </li>
+
+            {% if has_permission(session.get("user"), "meeting_spot_index") %}
+            <li class="nav-item dropdown no-arrow">
+                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false"
+                        data-bs-toggle="dropdown" href="#"><span
+                            class="d-none d-lg-inline me-2 text-gray-600 small">Puntos de Encuentro</span></a>
+                    <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in">
+                        <a class="dropdown-item" href="{{ url_for('meetingspot_index') }}"><i
+                                class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Listado</a>
+                        <div class="dropdown-divider"></div><a class="dropdown-item"
+                            href="{{ url_for('meetingspot_new') }}">
+                            <i class="far fa-plus-square fa-sm fa-fw text-gray-400"></i>&nbsp;Agregar Punto de
+                            Encuentro</a>
+                    </div>
+                </div>
+            </li>
+            {% endif %}
+
+            {% if has_permission(session.get("user"), "evacuation_index") %}
+            <li class="nav-item dropdown no-arrow">
+                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false"
+                        data-bs-toggle="dropdown" href="#"><span
+                            class="d-none d-lg-inline me-2 text-gray-600 small">Recorridos de Evacuación</span></a>
+                    <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in">
+                        <a class="dropdown-item" href="{{ url_for('evacuation_index') }}"><i
+                                class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Listado</a>
+                        <div class="dropdown-divider"></div><a class="dropdown-item"
+                            href="{{ url_for('evacuation_new') }}">
+                            <i class="far fa-plus-square fa-sm fa-fw text-gray-400"></i>&nbsp;Agregar Recorrido de
+                            Evacuación</a>
+                    </div>
+                </div>
+            </li>
+            {% endif %}
+
+            {% if has_permission(session.get("user"), "flood_zone_index") %}
+            <li class="nav-item dropdown no-arrow">
+                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false"
+                        data-bs-toggle="dropdown" href="#"><span
+                            class="d-none d-lg-inline me-2 text-gray-600 small">Zonas de Inundación</span></a>
+                    <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in">
+                        <a class="dropdown-item" href="{{ url_for('floodzone_index') }}"><i
+                                class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Listado</a>
+
+                    </div>
+                </div>
+            </li>
+            {% endif %}
+
+            {% if has_permission(session.get("user"), "denunciation_index") %}
+            <li class="nav-item dropdown no-arrow">
+                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false"
+                        data-bs-toggle="dropdown" href="#"><span
+                            class="d-none d-lg-inline me-2 text-gray-600 small">Denuncias</span></a>
+                    <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in">
+                        <a class="dropdown-item" href="/denunciations?page=1&active=nope&search=&to_date=&from_date="><i
+                                class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Listado</a>
+                        <div class="dropdown-divider"></div><a class="dropdown-item"
+                            href="{{ url_for('denunciation_new') }}">
+                            <i class="far fa-plus-square fa-sm fa-fw text-gray-400"></i>&nbsp;Agregar Denuncia</a>
+                    </div>
+                </div>
+            </li>
+            {% endif %}
+
+            {% if has_permission(session.get("user"), "user_index") %}
+            <li class="nav-item dropdown no-arrow">
+                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false"
+                        data-bs-toggle="dropdown" href="#"><span
+                            class="d-none d-lg-inline me-2 text-gray-600 small">&nbsp;Usuarios</span></a>
+                    <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in">
+                        <a class="dropdown-item" href="{{ url_for('user_index') }}"><i
+                                class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Listado</a>
+                        <div class="dropdown-divider"></div><a class="dropdown-item" href="{{ url_for('user_new') }}">
+                            <i class="fas fa-user-plus fa-sm fa-fw text-gray-400"></i>&nbsp;Agregar Usuario </a>
+                    </div>
+                </div>
+            </li>
+
+            {% endif %}
+        </ul>
+        <ul class="navbar-nav d-flex flex-row justify-content-right ">
+            &nbsp;&nbsp;&nbsp;<div style="border-left:1px solid gray;height:40px; margin-right:10px;"></div>
+            <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3"
+                    id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                <div class="row">
+                    <form action="/update_active_role" method="POST" class="d-flex">
+                        <select value="{{ session.get('actual_role') }}" name="active_role" class="form-select"
+                            aria-label="Default select example">
+                            {% for key,value in session.get("roles").items() %}
+                            {% if value == session.get('actual_role')[1] %}
+                            <option selected value="{{ value }}">{{ value }}</option>
+                            {% else %}
+                            <option value="{{ value }}">{{ value }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-outline-secondary mx-2" type="submit">
+                            Cambiar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </ul>
+        <ul class="navbar-nav d-flex flex-row justify-content-right ">
+            &nbsp;&nbsp;&nbsp;<div style="border-left:1px solid gray;height:40px; margin-right:10px;"></div>
+            <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3"
+                    id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                <ul class="navbar-nav flex-nowrap ms-auto">
+                    <li class="nav-item dropdown no-arrow mx-1"></li>
+                    <div class="d-none d-sm-block topbar-divider"></div>
+                    <li class="nav-item dropdown no-arrow">
+                        <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link"
+                                aria-expanded="false" data-bs-toggle="dropdown" href="#"><i
+                                    class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i><span
+                                    class="d-none d-lg-inline me-2 text-gray-600 small">{{ session.get("user")
+                                    }}</span></a>
+                            <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in">
+                                {% if has_permission(session.get("user"), "configuration_show") %}
+                                <a class="dropdown-item" href="{{ url_for('configuration') }}"><i
+                                        class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Configuración</a>
+                                <div class="dropdown-divider"></div>
+                                {% endif %}
+                                <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalLogout">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Cerrar
+                                    Sesion</a>
+
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </ul>
+    </div>
+</nav>
+
+<!-- begin modal logout-->
+<div class="modals-user">
+    <div class="modal " id="modalLogout" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Cerrar sesión</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p style="font-size: 16px;">
+                        ¿Está seguro que desea cerrar la sesión?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-outline-danger" href="{{ url_for('auth_logout') }}">Cerrar sesión</a>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end modal -->

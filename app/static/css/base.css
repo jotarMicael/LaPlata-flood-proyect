@@ -1,0 +1,11 @@
+footer{
+    background-color: #f8f9fa!important;
+    bottom: 0;
+    display:flex;
+    font-size: 80%;
+    justify-content: center;
+}
+
+#modals-user{
+    background-color: rgba(0,0,0, 0.5) !important;
+}

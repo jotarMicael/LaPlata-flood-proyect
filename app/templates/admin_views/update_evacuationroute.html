@@ -1,0 +1,153 @@
+{% extends "admin-panel/base.html" %}
+{% block stylesheets %}
+{% endblock stylesheets %}
+
+{% block content %}
+{% if has_permission(session.get("user"), "evacuation_update")  %}
+
+    <div>
+        <h1> Modificar recorrido de evacuacion </h1>
+    </div>
+
+    <div class="col" style="text-align: left">
+        <form action="/evacuations/update" method="POST" id="form" onsubmit="submitHandler(event)"
+            enctype="multipart/form-data">
+            <input value="{{evacuation_route.id}}" class="d-none" type="text" name="evacuation_route_id">
+            <div class="row mb-5 mt-3">
+                <div class="col-2">
+                    <label> Nombre </label><br>
+                    <input value="{{ evacuation_route.name }}" class="form-control" type="text" required name="name"
+                        placeholder="Nombre">
+                </div><br>
+                <div class="col-2">
+                    <label> Estado </label><br>
+                    <select class="form-control" name="status">
+                        <option {% if evacuation_route.state_id == 1 %} selected {% endif %}  value="1">Publicado</option> 
+                        <option {% if evacuation_route.state_id == 2 %} selected {% endif %} value="2">No publicado</option>            
+                    </select>   
+                </div><br>
+                <div class="col-2">
+                    <label> Descripcion </label><br>
+                    <input value="{{ evacuation_route.description }}" class="form-control"type="text" required name="description" placeholder="Descripcion">
+                </div>
+                
+            </div>
+
+            <div class="row  mt-3">
+                <div class="col-2">
+                    <label> Latitud </label><br>
+                    <input  class="form-control latitud" type="text" required name="latitude" placeholder="Latitud">
+                </div>
+                
+                <div class="col-2">
+                    <label> Longitud </label><br>
+                    <input  class="form-control longitud" type="text" required name="longitude" placeholder="Longitud">
+                </div><br>
+            </div>
+            <div class="row  mt-3">
+                <div class="col-2">
+                    <label> Latitud </label><br>
+                    <input  class="form-control latitud" type="text" required name="latitude" placeholder="Latitud">
+                </div>
+                
+                <div class="col-2">
+                    <label> Longitud </label><br>
+                    <input  class="form-control longitud" type="text" required name="longitude" placeholder="Longitud">
+                </div><br>
+            </div>
+            <div class="row  mt-3">
+                <div class="col-2">
+                    <label> Latitud </label><br>
+                    <input  class="form-control latitud" type="text" required name="latitude" placeholder="Latitud">
+                </div>
+                
+                <div class="col-2">
+                    <label> Longitud </label><br>
+                    <input  class="form-control longitud" type="text" required name="longitude" placeholder="Longitud">
+                </div><br>
+            </div>
+        
+        
+        
+            <div id="newRow"></div>
+        
+            <input type="hidden" name="latitudesTotal"  id="latitudesTotal" />
+            <input type="hidden" name="longitudesTotal" id="longitudesTotal" />
+            
+            <br>
+            <button class="btn my-2 my-sm-0 btn-block" id="addRow" style="background-color: {{session.get('hexa')}}" type="button">Agregar nuevo punto</button>
+            <button class="btn btn-danger my-2 my-sm-0 btn-block" id="removeRow"  type="button">Remover ultimo punto</button>
+        
+        
+        
+            <button class="btn my-2 my-sm-0 btn-block" style="background-color: {{session.get('hexa')}}" type="submit">Cargar</button>
+            </div><br><br><br>
+            <input type="hidden" data-coordinate="{{evacuation_route.evacuation_route_coordinate}}" value="{{evacuation_route.evacuation_route_coordinate}}"" name="evacuationroutefield" id="evacuationroutefield" />
+
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock content %}
+
+
+{% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<script>
+    console.log('evacuation route: ',$("#evacuationroutefield").data("coordinate"));
+    let coordenadas = $("#evacuationroutefield").data();
+    console.log('cooredanads var: ',coordenadas)
+    for (let i = 0 ; i <= coordenadas.length ; i++){
+        console.log('coordenada en for: ',coordenadas[i])
+    }
+    // agrega un input
+    $("#addRow").click(function () {
+        var html = '';
+        html += '<div id="inputFormRow">';
+        html += '<div class="row  mt-3">';
+        html += '<div class="col-2">';
+        html += '<label> Latitud </label><br>';
+        html += '<input  class="form-control latitud" type="text" required name="latitude" placeholder="Latitud">';
+        html += '</div>';
+        html += '<div class="col-2">';
+        html += '<label> Longitud </label><br>';
+        html += '<input  class="form-control longitud" type="text" required name="longitude" placeholder="Longitud">';
+        html += '</div><br>';
+        html += '</div>';
+        html += '</div>';
+
+        $('#newRow').append(html);
+    });
+
+    // remueve un input
+    $("#removeRow").click(function () {
+        $("#newRow").children().last().remove()
+    });
+
+    $("#form").submit(function() {
+        var latitudes = $('.latitud').map((_,el) => el.value).get();
+        var longitudes = $('.longitud').map((_,el) => el.value).get();
+
+        var latitudesAux = ''
+        var longitudesAux = ''
+
+        $.each(latitudes, function(index){
+            latitudesAux += this;
+            latitudesAux += '|';
+        })
+
+        $.each(longitudes, function(index){
+            longitudesAux += this;
+            longitudesAux += '|';
+        })
+
+        latitudesAux = latitudesAux.slice(0,-1);
+        longitudesAux = longitudesAux.slice(0,-1);
+
+
+
+        $("#latitudesTotal").val(latitudesAux);
+        $("#longitudesTotal").val(longitudesAux);
+    });
+</script>
+{% endblock javascripts %}

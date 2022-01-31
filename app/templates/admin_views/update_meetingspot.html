@@ -1,0 +1,94 @@
+{% extends "admin-panel/base.html" %}
+{% block stylesheets %}
+
+    <!-- CSS Mapa --> 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin="" />
+    
+    <!-- CSS Busqueda Mapa --> 
+    <link rel="stylesheet" type="text/css"
+    href="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.css">
+   
+    <!-- CSS Propio --> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}" />
+     
+{% endblock stylesheets %}
+
+{% block content %}
+
+    <div>
+        <h1> Modificar punto de encuentro </h1>
+    </div>
+
+    <div class="col" style="text-align: left">
+        <form action="/meetingspots/update" method="POST" onsubmit="submitHandler(event)"
+            enctype="multipart/form-data">
+            <input value="{{meetingspot.id}}" class="d-none" type="text" name="meetingspot_id">
+            <div class="row mb-5 mt-3">
+                <div class="col-auto">
+                    <label> Nombre </label><br>
+                    <input value="{{ meetingspot.name }}" class="form-control" type="text" required name="name"
+                        placeholder="Nombre">
+                </div>
+
+                <div class="col-auto">
+                    <label> Email </label><br>
+                    <input value="{{ meetingspot.email }}" class="form-control" type="email" name="email"
+                        placeholder="Email">
+                </div>
+                <div class="col-auto">
+                    <label> Teléfono </label><br>
+                    <input value="{{ meetingspot.phone }}" class="form-control" type="tel" required name="phone"
+                        placeholder="Teléfono">
+                </div>
+               
+            </div>
+            <div class="row mb-5">
+                <div class="col-auto">
+                    <label> Direccion </label><br>
+                    <input value="{{ meetingspot.address }}" class="form-control" type="tel" required name="address"
+                        placeholder="Teléfono">
+                </div>
+                <div class="col-auto">
+                    <label> Estado </label><br>
+                    <select class="form-select" name="status" id="status" aria-label="Estado">
+                        <option selected="true" value="{{ all[0].state_id }}">{{ all[0].name }}</option>
+                        {% for state in states %}
+                        {% if state.id != all[0].state_id %}
+                        <option value="{{state.id}}">{{state.name }}</option>
+                        {% endif %}
+                      {% endfor %}    
+                    </select>     
+                </div>
+      
+            
+            </div>
+
+            <input class="form-control" value="{{ meetingspot.latitude }}" type="text" id="latitude" name="latitude" >
+            <input class="form-control" value="{{ meetingspot.longitude }}" type="text" id="longitude" name="longitude" >
+                
+            <div id="mapid" style="height: 500px ; width: 100% "></div>
+            <br>
+            <div>
+                <button class="btn my-2 my-sm-0" style="background-color: {{session.get('hexa')}};" type="submit">Cargar</button>
+            </div><br><br><br>
+
+
+        </form>
+    </div>
+</div>
+{% endblock content %}
+<!-- Specific JS  -->
+{% block javascripts %}
+    <!-- JS Mapa -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+     integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+     crossorigin=""></script>
+    <!-- JS Busqueda Mapa -->
+    <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet/0.0.1-beta.5/esri-leaflet.js"></script>
+    <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.js"></script>
+     
+    <!-- JS propio -->
+    <script src="{{ url_for('static', filename='js/map/map.js') }}"></script>
+{% endblock javascripts %}
